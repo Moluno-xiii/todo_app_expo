@@ -16,20 +16,28 @@ import CircularCheckbox from "./CircularCheckBox";
 const Header = () => {
   const { theme, handleToggleTheme, colour } = useTheme();
   const [todoInput, setTodoInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const addTodo = useMutation(api.mutations.addTodo.addTodo);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!todoInput.length) {
-      console.error("enter a valid todo");
       Alert.alert("Please enter a valid todoW");
       return;
     }
+    try {
+      setIsLoading(true);
+      setTodoInput("");
 
-    console.log("new todo added", todoInput);
-    setTodoInput("");
-
-    Alert.alert("Todo added");
-    // addTodo({ todo: { name: todoInput, status: "active" } });
+      const todoAdded = await addTodo({
+        todo: { name: todoInput, status: "active" },
+      });
+      Alert.alert("Todo added");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unexpected error";
+      Alert.alert(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -63,8 +71,13 @@ const Header = () => {
       <View style={{ position: "relative" }}>
         <TextInput
           value={todoInput}
-          placeholder="Create a new Todo..."
+          placeholder={
+            isLoading
+              ? "Creating todo, please wait..."
+              : ` Create a new Todo...`
+          }
           onChangeText={setTodoInput}
+          editable={isLoading ? false : true}
           placeholderTextColor={colour.textSecondary}
           style={{
             ...styles.input,

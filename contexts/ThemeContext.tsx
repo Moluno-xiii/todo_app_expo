@@ -20,7 +20,6 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const defaultTheme = useColorScheme();
   const [theme, setTheme] = useState<ThemeContextType["theme"]>("light");
-  console.log("defaultTheme", defaultTheme);
   const colour = colours[theme];
 
   useEffect(() => {

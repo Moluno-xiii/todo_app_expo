@@ -1,4 +1,4 @@
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import useTheme from "../contexts/ThemeContext";
@@ -6,6 +6,7 @@ import { api } from "../convex/_generated/api";
 import filterTodos, { Filter } from "../utils/filterTodos";
 import FilterTodosCTA from "./FilterTodosCTA";
 import TodosContainer from "./TodosContainer";
+import Loading from "./Loading";
 
 const Todos = () => {
   const { colour } = useTheme();
@@ -13,32 +14,12 @@ const Todos = () => {
   const deleteCompleted = useMutation(
     api.mutations.clearCompletedTodos.clearcompletedTodos
   );
+  const todos = useQuery(api.queries.getTodos.getTodos);
+  if (todos === undefined) return <Loading />;
 
-  const todos: { name: string; status: Filter; id: number }[] = [
-    {
-      name: "first todo",
-      status: "completed",
-      id: 1,
-    },
-    {
-      name: "second todo",
-      status: "active",
-      id: 2,
-    },
-    {
-      name: "third todo",
-      status: "completed",
-      id: 3,
-    },
-    {
-      name: "fourth todo",
-      status: "active",
-      id: 4,
-    },
-  ];
-  const filteredTodos = filterTodos(activeFilter, todos);
+  const filteredTodos = filterTodos(activeFilter, todos?.todos);
 
-  if (!todos.length)
+  if (!todos?.todos.length)
     return (
       <View>
         <Text style={{ ...styles.empty, color: colour.textSecondary }}>
@@ -63,7 +44,7 @@ const Todos = () => {
               fontFamily: "josefin-regular",
             }}
           >
-            5 items left
+            {filterTodos("active", todos?.todos as any).length} items left
           </Text>
           <Text
             onPress={() => deleteCompleted()}

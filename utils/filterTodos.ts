@@ -1,7 +1,6 @@
-const filterTodos = (
-  criteria: Filter,
-  todos: { status: Filter; name: string; id: number }[]
-) => {
+import { Todo } from "../types";
+
+const filterTodos = (criteria: Filter, todos: Todo[]) => {
   if (criteria === "all") {
     return todos;
   }

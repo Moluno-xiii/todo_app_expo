@@ -19,10 +19,7 @@ const CircularCheckbox = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    // alignItems: "center",
-    // justifyContent: "center",
-  },
+  container: {},
   circle: {
     width: 24,
     height: 24,

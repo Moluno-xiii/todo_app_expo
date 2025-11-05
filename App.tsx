@@ -3,6 +3,7 @@ import RootNavigator from "./screens/RootNavigator";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useFonts } from "expo-font";
 import { Text, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
@@ -24,7 +25,9 @@ export default function App() {
   return (
     <ConvexProvider client={convex}>
       <ThemeProvider>
-        <RootNavigator />
+        <GestureHandlerRootView>
+          <RootNavigator />
+        </GestureHandlerRootView>
       </ThemeProvider>
     </ConvexProvider>
   );

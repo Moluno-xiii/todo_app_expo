@@ -1,27 +1,64 @@
 import { useMutation } from "convex/react";
+import { useState } from "react";
 import {
-  StyleSheet,
-  View,
-  Text,
+  Alert,
   FlatList,
   Image,
+  StyleSheet,
+  Text,
   TouchableWithoutFeedback,
+  View,
 } from "react-native";
-import { api } from "../convex/_generated/api";
-import { Filter } from "../utils/filterTodos";
-import CircularCheckbox from "./CircularCheckBox";
 import useTheme from "../contexts/ThemeContext";
+import { api } from "../convex/_generated/api";
+import { Id } from "../convex/_generated/dataModel";
+import { Todo } from "../types";
+import CircularCheckbox from "./CircularCheckBox";
 
-const TodosContainer = ({
-  filteredTodos,
-}: {
-  filteredTodos: { name: string; id: number; status: Filter }[];
-}) => {
+const TodosContainer = ({ filteredTodos }: { filteredTodos: Todo[] }) => {
   const { colour } = useTheme();
+  const [isDeleting, setIsDeleting] = useState("");
+  const [isEditing, setIsEditing] = useState("");
   const deleteTodo = useMutation(api.mutations.deleteTodo.deleteTodo);
   const updateTodoStatus = useMutation(
     api.mutations.updateTodoStatus.updateTodoStatus
   );
+
+  const onDeleteTodo = async (id: string) => {
+    try {
+      setIsDeleting(id);
+      await deleteTodo({ todoId: id as Id<"todos"> });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Unexpected error occured while deleting Todo.";
+      Alert.alert(message);
+    } finally {
+      setIsDeleting("");
+    }
+  };
+
+  const onUpdateTodoStatus = async (id: string, currentStatus: string) => {
+    try {
+      setIsEditing(id);
+      await updateTodoStatus({
+        status: currentStatus === "completed" ? "active" : "completed",
+        todoId: id as Id<"todos">,
+      });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Unexpected error occured while deleting Todo.";
+      Alert.alert(message);
+    } finally {
+      setIsEditing("");
+    }
+  };
+
+  if (filteredTodos.length < 1) return <Text>No item yet</Text>;
+
   return (
     <FlatList
       data={filteredTodos}
@@ -34,12 +71,7 @@ const TodosContainer = ({
         >
           <CircularCheckbox
             checked={item.status === "completed"}
-            onChange={() =>
-              updateTodoStatus({
-                status: item.status === "completed" ? "active" : "completed",
-                todoId: item.id,
-              })
-            }
+            onChange={() => onUpdateTodoStatus(item._id, item.status)}
           />
           <Text
             style={{
@@ -51,9 +83,16 @@ const TodosContainer = ({
               fontFamily: "josefin-regular",
             }}
           >
-            {item.name}
+            {isEditing === item._id
+              ? "Editing, please wait..."
+              : isDeleting === item._id
+                ? "Deleting, please wait..."
+                : item.name}
           </Text>
-          <TouchableWithoutFeedback onPress={() => deleteTodo}>
+          <TouchableWithoutFeedback
+            onPress={() => onDeleteTodo(item._id)}
+            disabled={isEditing.length > 0 || isDeleting.length > 0}
+          >
             <Image
               source={require("../assets/cancel_logo.png")}
               height={12}
