@@ -1,19 +1,36 @@
-import {
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  TextInput,
-  ImageBackground,
-  TouchableOpacity,
-} from "react-native";
+import { useMutation } from "convex/react";
 import { useState } from "react";
+import {
+  Alert,
+  Image,
+  ImageBackground,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import useTheme from "../contexts/ThemeContext";
-import colours from "../colours";
+import { api } from "../convex/_generated/api";
+import CircularCheckbox from "./CircularCheckBox";
 
 const Header = () => {
   const { theme, handleToggleTheme, colour } = useTheme();
   const [todoInput, setTodoInput] = useState("");
+  const addTodo = useMutation(api.mutations.addTodo.addTodo);
+
+  const handleSubmit = () => {
+    if (!todoInput.length) {
+      console.error("enter a valid todo");
+      Alert.alert("Please enter a valid todoW");
+      return;
+    }
+
+    console.log("new todo added", todoInput);
+    setTodoInput("");
+
+    Alert.alert("Todo added");
+    // addTodo({ todo: { name: todoInput, status: "active" } });
+  };
 
   return (
     <ImageBackground
@@ -43,19 +60,29 @@ const Header = () => {
           />
         </TouchableOpacity>
       </View>
+      <View style={{ position: "relative" }}>
+        <TextInput
+          value={todoInput}
+          placeholder="Create a new Todo..."
+          onChangeText={setTodoInput}
+          placeholderTextColor={colour.textSecondary}
+          style={{
+            ...styles.input,
+            backgroundColor: colour.backgroundLight,
+            color: colour.text,
+            marginTop: 40,
+            fontFamily: "josefin-regular",
 
-      <TextInput
-        value={todoInput}
-        placeholder="Create a new Todo..."
-        onChangeText={setTodoInput}
-        placeholderTextColor={colour.textInactive}
-        style={{
-          ...styles.input,
-          backgroundColor: colour.backgroundLight,
-          color: colour.text,
-          marginTop: 40,
-        }}
-      />
+            paddingLeft: 45,
+          }}
+        />
+        <View style={{ position: "absolute", top: 46, left: 10 }}>
+          <CircularCheckbox
+            checked={todoInput.length > 0}
+            onChange={handleSubmit}
+          />
+        </View>
+      </View>
     </ImageBackground>
   );
 };

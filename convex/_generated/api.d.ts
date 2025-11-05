@@ -9,6 +9,9 @@
  */
 
 import type * as mutations_addTodo from "../mutations/addTodo.js";
+import type * as mutations_clearCompletedTodos from "../mutations/clearCompletedTodos.js";
+import type * as mutations_deleteTodo from "../mutations/deleteTodo.js";
+import type * as mutations_updateTodoStatus from "../mutations/updateTodoStatus.js";
 import type * as queries_getTodos from "../queries/getTodos.js";
 
 import type {
@@ -27,6 +30,9 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   "mutations/addTodo": typeof mutations_addTodo;
+  "mutations/clearCompletedTodos": typeof mutations_clearCompletedTodos;
+  "mutations/deleteTodo": typeof mutations_deleteTodo;
+  "mutations/updateTodoStatus": typeof mutations_updateTodoStatus;
   "queries/getTodos": typeof queries_getTodos;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
